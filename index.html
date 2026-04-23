@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Guard | Professional QR Code Safety Scanner</title>
+    <meta name="description" content="Enterprise-grade QR code scanner with real-time threat detection. Protect against phishing, malware & scams.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- QR Scanner -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e293b">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Navigation -->
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-shield-alt"></i>
+                <span>QR Guard</span>
+            </div>
+            <div class="nav-stats">
+                <span class="scan-counter">
+                    <i class="fas fa-scanner"></i>
+                    <span id="scanCount">0</span> Scans
+                </span>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">
+                        <span class="gradient-text">Scan QR Codes</span><br>
+                        Stay Protected
+                    </h1>
+                    <p class="hero-subtitle">
+                        Professional QR code analysis with enterprise-grade threat detection.
+                        Instant phishing, malware & scam protection.
+                    </p>
+                    <div class="features-grid">
+                        <div class="feature-item">
+                            <i class="fas fa-bolt"></i>
+                            <span>Real-time Analysis</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-shield-halved"></i>
+                            <span>99.9% Accuracy</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-mobile-alt"></i>
+                            <span>Mobile Ready</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Scanner Section -->
+        <section class="scanner-section">
+            <div class="scanner-card">
+                <div class="scanner-header">
+                    <h2><i class="fas fa-qrcode"></i> QR Code Scanner</h2>
+                    <div class="scanner-status" id="scannerStatus">
+                        Ready to scan
+                    </div>
+                </div>
+                
+                <div class="scanner-area">
+                    <div id="qrReader" class="qr-reader"></div>
+                    <div class="scanner-overlay">
+                        <div class="scan-frame"></div>
+                        <div class="scan-line"></div>
+                    </div>
+                </div>
+
+                <div class="scanner-controls">
+                    <button id="startScanBtn" class="control-btn primary">
+                        <i class="fas fa-camera"></i>
+                        Start Camera
+                    </button>
+                    <button id="stopScanBtn" class="control-btn danger" style="display: none;">
+                        <i class="fas fa-stop"></i>
+                        Stop Camera
+                    </button>
+                    <div class="control-divider">or</div>
+                    <label class="control-btn secondary" for="qrFileInput">
+                        <i class="fas fa-upload"></i>
+                        Upload Image
+                        <input type="file" id="qrFileInput" accept="image/*" hidden>
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section id="resultsSection" class="results-section hidden">
+            <div class="results-card">
+                <div class="results-header">
+                    <div class="risk-status" id="riskStatus">
+                        <div class="risk-icon" id="riskIcon">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                        <div class="risk-info">
+                            <h2 id="resultTitle">Analyzing QR Code</h2>
+                            <div id="qrUrlPreview" class="url-preview"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="results-metrics">
+                    <div class="metric-item">
+                        <div class="metric-label">Target Domain</div>
+                        <div id="targetDomain" class="metric-value">Loading...</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Risk Level</div>
+                        <div id="riskLevel" class="metric-badge">Analyzing...</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Threat Score</div>
+                        <div id="threatScore" class="metric-score">0/10</div>
+                    </div>
+                </div>
+
+                <div id="analysisSummary" class="analysis-summary">
+                    Performing security checks...
+                </div>
+
+                <div class="results-actions">
+                    <a id="safeVisitBtn" class="action-btn primary" target="_blank" style="display: none;">
+                        <i class="fas fa-external-link-alt"></i>
+                        Visit Secure Link
+                    </a>
+                    <button id="newScanBtn" class="action-btn secondary">
+                        <i class="fas fa-redo"></i>
+                        Scan New QR Code
+                    </button>
+                </div>
+
+                <div class="detailed-report">
+                    <button class="report-toggle">
+                        <i class="fas fa-chevron-down"></i>
+                        Show Detailed Report
+                    </button>
+                    <div class="report-content hidden">
+                        <div id="detailedChecks"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Scripts -->
+    <script src="scanner.js"></script>
+</body>
+</html>
