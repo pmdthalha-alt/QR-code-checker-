@@ -1,77 +1,102 @@
-class QRSafetyScanner {
+class QRGuardPro {
     constructor() {
         this.scanner = null;
+        this.scanCount = 0;
         this.init();
     }
 
     init() {
+        this.cacheDOM();
         this.bindEvents();
-        this.resultEl = document.getElementById('result');
-        this.readerEl = document.getElementById('reader');
+        this.updateScanCount();
+        this.hideResults();
+    }
+
+    cacheDOM() {
+        // Scanner
+        this.startBtn = document.getElementById('startScanBtn');
+        this.stopBtn = document.getElementById('stopScanBtn');
+        this.fileInput = document.getElementById('qrFileInput');
+        this.reader = document.getElementById('qrReader');
+        this.statusEl = document.getElementById('scannerStatus');
+
+        // Results
+        this.resultsSection = document.getElementById('resultsSection');
+        this.riskIcon = document.getElementById('riskIcon');
+        this.resultTitle = document.getElementById('resultTitle');
+        this.qrPreview = document.getElementById('qrUrlPreview');
+        this.targetDomain = document.getElementById('targetDomain');
+        this.riskLevel = document.getElementById('riskLevel');
+        this.threatScore = document.getElementById('threatScore');
+        this.summaryMsg = document.getElementById('analysisSummary');
+        this.visitBtn = document.getElementById('safeVisitBtn');
+        this.newScanBtn = document.getElementById('newScanBtn');
+        this.scanCountEl = document.getElementById('scanCount');
     }
 
     bindEvents() {
-        document.getElementById('startScan').addEventListener('click', () => this.startScan());
-        document.getElementById('stopScan').addEventListener('click', () => this.stopScan());
-        document.getElementById('uploadBtn').addEventListener('click', () => this.uploadImage());
-        document.getElementById('scanAgain').addEventListener('click', () => this.reset());
+        this.startBtn.addEventListener('click', () => this.startScanner());
+        this.stopBtn.addEventListener('click', () => this.stopScanner());
+        this.fileInput.addEventListener('change', (e) => this.scanFile(e.target.files[0]));
+        this.newScanBtn.addEventListener('click', () => this.resetScanner());
     }
 
-    async startScan() {
+    async startScanner() {
         try {
-            this.scanner = new Html5Qrcode(this.readerEl);
-            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+            this.scanner = new Html5Qrcode(this.reader);
+            this.updateStatus('Activating camera...', 'warning');
             
             await this.scanner.start(
                 { facingMode: "environment" },
-                this.onScanSuccess.bind(this),
-                this.onScanError.bind(this)
+                (decodedText) => {
+                    this.processQRCode(decodedText);
+                    this.stopScanner();
+                },
+                (error) => {
+                    console.log('Scan in progress...');
+                }
             );
             
-            this.updateUI('scan', true);
+            this.toggleControls(true);
+            this.updateStatus('Point camera at QR code', 'success');
         } catch (err) {
-            this.showError('Camera access denied or not available');
+            this.showError('Camera access denied. Please allow camera permission.');
         }
     }
 
-    stopScan() {
+    stopScanner() {
         if (this.scanner) {
             this.scanner.stop().then(() => {
                 this.scanner.clear();
-                this.updateUI('scan', false);
-            });
+                this.toggleControls(false);
+                this.updateStatus('Ready to scan', 'default');
+            }).catch(console.error);
         }
     }
 
-    uploadImage() {
-        const input = document.getElementById('fileInput');
-        input.click();
-        input.onchange = (e) => this.scanImage(e.target.files[0]);
+    toggleControls(scanning) {
+        this.startBtn.style.display = scanning ? 'none' : 'flex';
+        this.stopBtn.style.display = scanning ? 'flex' : 'none';
     }
 
-    async scanImage(file) {
+    async scanFile(file) {
         if (!file) return;
-        
         try {
-            const scanner = new Html5Qrcode(this.readerEl);
+            this.updateStatus('Reading image...', 'warning');
+            const scanner = new Html5Qrcode(this.reader);
             const result = await scanner.scanFile(file, true);
-            this.analyzeQR(result);
+            this.processQRCode(result);
         } catch (err) {
-            this.showError('Could not read QR code from image');
+            this.showError('Could not detect QR code in image');
         }
     }
 
-    onScanSuccess(decodedText) {
-        this.analyzeQR(decodedText);
-    }
-
-    onScanError() {
-        // Silent fail during scan
-    }
-
-    async analyzeQR(qrData) {
-        this.stopScan();
+    async processQRCode(qrData) {
+        this.scanCount++;
+        this.updateScanCount();
+        
         this.showLoading();
+        this.updateStatus('Analyzing security threats...', 'warning');
         
         try {
             const response = await fetch('/api/analyze', {
@@ -80,62 +105,16 @@ class QRSafetyScanner {
                 body: JSON.stringify({ url: qrData })
             });
             
-            const result = await response.json();
-            this.displayResult(result);
+            if (!response.ok) throw new Error('Analysis failed');
+            
+            const analysis = await response.json();
+            this.displayProfessionalResults(analysis, qrData);
         } catch (error) {
-            this.showError('Analysis failed. Please try again.');
+            this.showError('Security analysis unavailable. Please verify manually.');
         }
     }
 
-    displayResult(result) {
-        document.getElementById('riskTitle').textContent = result.safe ? '✅ SAFE' : '❌ DANGER';
-        document.getElementById('riskBadge').textContent = result.safe ? '✅' : '❌';
-        document.getElementById('riskBadge').className = `badge ${result.risk}`;
-        
-        document.getElementById('domain').textContent = result.domain;
-        document.getElementById('riskLevel').textContent = result.risk.toUpperCase();
-        document.getElementById('score').textContent = `${result.score}/9`;
-        document.getElementById('message').textContent = result.message;
-        
-        const visitLink = document.getElementById('visitLink');
-        if (result.safe) {
-            visitLink.href = result.url;
-            visitLink.style.display = 'inline-block';
-        }
-        
-        this.resultEl.classList.remove('hidden', 'loading');
-        this.resultEl.classList.add(result.risk);
-    }
-
-    updateUI(mode, active) {
-        const startBtn = document.getElementById('startScan');
-        const stopBtn = document.getElementById('stopScan');
-        
-        if (mode === 'scan') {
-            startBtn.style.display = active ? 'none' : 'inline-block';
-            stopBtn.style.display = active ? 'inline-block' : 'none';
-        }
-    }
-
-    showLoading() {
-        this.resultEl.classList.remove('hidden');
-        this.resultEl.classList.add('loading');
-        document.getElementById('riskTitle').textContent = '🔍 Analyzing...';
-    }
-
-    showError(message) {
-        this.resultEl.classList.remove('hidden', 'loading');
-        document.getElementById('riskTitle').textContent = '❌ Error';
-        document.getElementById('message').textContent = message;
-    }
-
-    reset() {
-        this.resultEl.classList.add('hidden');
-        this.updateUI('scan', false);
-    }
-}
-
-// Initialize when page loads
-document.addEventListener('DOMContentLoaded', () => {
-    new QRSafetyScanner();
-});
+    displayProfessionalResults(analysis, originalQR) {
+        // Risk Status
+        const riskClass = analysis.safe ? 'safe' : analysis.risk;
+        this.resultsSection.classList.remove('hidden
