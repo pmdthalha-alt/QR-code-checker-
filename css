@@ -1,0 +1,157 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    text-align: center;
+    color: white;
+    margin-bottom: 30px;
+}
+
+header h1 { font-size: 2.5em; margin-bottom: 10px; }
+header p { font-size: 1.2em; opacity: 0.9; }
+
+.scanner-section {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+#reader { 
+    width: 100%; 
+    max-width: 400px; 
+    margin: 0 auto 20px;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn.primary {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+}
+
+.btn.primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(102,126,234,0.4); }
+
+.btn.danger {
+    background: #ff6b6b;
+    color: white;
+}
+
+.btn.danger:hover { background: #ff5252; }
+
+.btn.secondary {
+    background: #f8f9fa;
+    color: #495057;
+    border: 2px solid #dee2e6;
+}
+
+.result {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    transition: all 0.5s;
+}
+
+.result.hidden { display: none; }
+
+.result.low { border-top: 5px solid #51cf66; }
+.result.medium { border-top: 5px solid #ffd43b; }
+.result.high { border-top: 5px solid #ff6b6b; }
+.result.loading { border-top: 5px solid #339af0; }
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.badge {
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.badge.low { background: #51cf66; color: white; }
+.badge.medium { background: #ffd43b; color: #333; }
+.badge.high { background: #ff6b6b; color: white; }
+
+.detail {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.label { font-weight: 600; color: #666; }
+.value { font-size: 1.1em; font-weight: 500; }
+
+.message {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+    font-size: 1.1em;
+    font-weight: 500;
+}
+
+.actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+footer {
+    margin-top: auto;
+    text-align: center;
+    color: rgba(255,255,255,0.8);
+    padding-top: 40px;
+}
+
+footer a { color: white; text-decoration: none; }
+
+@media (max-width: 600px) {
+    .container { padding: 15px; }
+    header h1 { font-size: 2em; }
+    .controls { flex-direction: column; }
+    .btn { width: 100%; justify-content: center; }
+}
